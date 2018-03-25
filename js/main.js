@@ -138,6 +138,17 @@ function orbit(month) {
     var kx = (w - 20)/(2*smax);
     var ky = (h - 20)/(2*smin);
 
+    // clear orbit
+    d3.select("#orbit-chart")
+      .selectAll("ellipse")
+      .remove()
+    d3.select("#orbit-chart")
+      .selectAll("circle")
+      .remove()
+    d3.select("#orbit-chart")
+      .selectAll("text")
+      .remove()
+
     // make orbit
     d3.select("#orbit-chart")
       .append("ellipse")
