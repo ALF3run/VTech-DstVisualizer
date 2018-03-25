@@ -37,14 +37,17 @@ document.getElementById("user-file").addEventListener("change", function() {
 
         // initialize charts
         histogram(yearInput.value, monthInput.value, dataArray);
+        orbit(monthInput.value);
 
         // add input listeners and update charts
         yearInput.addEventListener("change", function() {
             monthRange(this.value, dataArray);
             histogram(this.value, monthInput.value, dataArray);
+            moveEarth(monthInput.value);
         }, {passive: true});
         monthInput.addEventListener("change", function() {
             histogram(yearInput.value, this.value, dataArray);
+            moveEarth(this.value);
         }, {passive: true});
     }
     reader.readAsText(dataFile);
@@ -115,6 +118,93 @@ function histogram(year, month, dataArray) {
       .transition()
       .duration(500)
       .attr("y", d => h - Math.abs(d.meanValue*h/300)-5);
+}
+
+function orbit(month) {
+    // data from https://en.wikipedia.org/wiki/Earth%27s_orbit#Events_in_the_orbit
+    // aphelion, perihelion, semymajor axis, eccentricity, semiminor axis
+    var aph  = 1.0167;
+    var per  = 0.98329;
+    var smax = 1.000001018;
+    var e    = 0.0167086;
+    var smin = Math.sqrt(smax**2 - (smax*e)**2);
+    // body radius in AU: 1 AU = 149597870.7 km
+    var earthR = 6371/149597870.7;
+    var sunR   = 695700/149597870.7;
+    // get svg size
+    var w = document.getElementById("orbit-chart").width.baseVal.value;
+    var h = document.getElementById("orbit-chart").height.baseVal.value;
+    // get scale coefficient
+    var kx = (w - 20)/(2*smax);
+    var ky = (h - 20)/(2*smin);
+
+    // make orbit
+    d3.select("#orbit-chart")
+      .append("ellipse")
+      .attr("cx", w/2)
+      .attr("cy", h/2)
+      .attr("rx", kx*smax)
+      .attr("ry", ky*smin)
+      .attr("stroke-width", 1)
+      .attr("stroke", "#eee")
+      .attr("fill", "rgba(0,0,0,0)");
+
+    d3.select("#orbit-chart")
+      .append("text")
+      .text("P")
+      .attr("x", w/2+kx*smax-20)
+      .attr("y", h/2)
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "0.7em")
+      .attr("fill", d => "#eee");
+
+    d3.select("#orbit-chart")
+      .append("text")
+      .text("A")
+      .attr("x", w/2-kx*smax+20)
+      .attr("y", h/2)
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "0.7em")
+      .attr("fill", d => "#eee");
+
+    d3.select("#orbit-chart")
+      .append("circle")
+      .attr("cx", w/2+kx*(smax-per))
+      .attr("cy", h/2)
+      .attr("r", 10*Math.sqrt(kx**2+ky**2)*sunR)
+      .attr("stroke-width", 10*Math.sqrt(kx**2+ky**2)*sunR/3)
+      .attr("stroke", "#fc0")
+      .attr("fill", "#f90");
+    
+    d3.select("#orbit-chart")
+      .append("circle")
+      .attr("cx", w/2+kx*smax*Math.cos(Math.PI/6*(month-1)))
+      .attr("cy", h/2+ky*smin*Math.sin(Math.PI/6*(month-1)))
+      .attr("r", 400*Math.sqrt(kx**2+ky**2)*earthR)
+      .attr("stroke-width", 400*Math.sqrt(kx**2+ky**2)*earthR/3)
+      .attr("stroke", "green")
+      .attr("fill", "aqua")
+      .attr("id", "earth");
+}
+
+function moveEarth(month) {
+    // data from https://en.wikipedia.org/wiki/Earth%27s_orbit#Events_in_the_orbit
+    // semymajor axis, eccentricity, semiminor axis
+    var smax = 1.000001018;
+    var e    = 0.0167086;
+    var smin = Math.sqrt(smax**2 - (smax*e)**2);
+    // get svg size
+    var w = document.getElementById("orbit-chart").width.baseVal.value;
+    var h = document.getElementById("orbit-chart").height.baseVal.value;
+    // get scale coefficient
+    var kx = (w - 20)/(2*smax);
+    var ky = (h - 20)/(2*smin);
+
+    d3.select("#earth")
+      .transition()
+      .ease(d3.easeLinear)
+      .attr("cx", w/2+kx*smax*Math.cos(Math.PI/6*(month-1)))
+      .attr("cy", h/2+ky*smin*Math.sin(Math.PI/6*(month-1)));
 }
 
 function yearRange(minYear, maxYear, dataArray) {
