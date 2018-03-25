@@ -1,5 +1,5 @@
-#svg-container {
-    overflow-x: auto;
+#orbit-chart {
+    background: #334;
 }
 #top-bar {
     background-color: #8b1f41;
@@ -49,19 +49,21 @@
     box-shadow: 0 3px 3px #999;
     display: block;
     margin: 1em 0;
-    padding: 0 1em 1em 1em;
+    padding: 0.5em 1em 1em 1em;
     text-align: center;
-}
-.content {
-    font-size: 0.85rem;
-    text-align: left;
 }
 .flex-container {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     height: 100%;
-    justify-content: space-between;
-    padding: 2em 10vw;
+    justify-content: space-around;
+}
+.info {
+    font-size: 0.85rem;
+    text-align: left;
+}
+.svg-container {
+    overflow-x: auto;
 }
 
 a {
@@ -94,6 +96,10 @@ html {
     margin: 0;
     height: 100%;
     padding: 0;
+}
+main {
+    height: 100%;
+    padding: 2em 10vw;
 }
 svg {
     background: #fff;
