@@ -137,7 +137,6 @@ function monthRange(year, dataArray) {
     var i = 0;
 
     months = months.slice(minMonth-1, maxMonth);
-    console.log(minMonth, maxMonth, months);
     
     // clear month input list
     d3.select("#month")
@@ -146,7 +145,6 @@ function monthRange(year, dataArray) {
 
     // update the month input list
     for(i = 0; i < maxMonth-minMonth+1; i++) {
-        console.log(i, months[i])
         d3.select("#month").append("option").attr("value", i+minMonth).text(months[i]);
     }
 }
