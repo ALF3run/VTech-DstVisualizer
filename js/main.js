@@ -92,10 +92,13 @@ function histogram(year, month, dataArray) {
       .enter()
       .append("rect")
       .attr("x", (d, i) => i*w/monthData.length)
-      .attr("y", d => h - Math.abs(d.meanValue*h/300))
+      .attr("y", d => h)
       .attr("width", w/monthData.length - 1)
       .attr("height", d => Math.abs(d.meanValue*h/300))
-      .attr("fill", d => "hsl(" +  Math.abs(d.meanValue*360/300) + ", 100%, 50%)");
+      .attr("fill", d => "hsl(" +  Math.abs(d.meanValue*360/300) + ", 100%, 50%)")
+      .transition()
+      .duration(500)
+      .attr("y", d => h - Math.abs(d.meanValue*h/300));
 
     // make histogram labels
     d3.select("#histogram-chart")
@@ -105,10 +108,13 @@ function histogram(year, month, dataArray) {
       .append("text")
       .text(d => Math.abs(d.meanValue))
       .attr("x", (d, i) => i*w/monthData.length+2)
-      .attr("y", d => h - Math.abs(d.meanValue*h/300)-5)
+      .attr("y", d => h-5)
       .attr("font-family", "sans-serif")
       .attr("font-size", "0.5em")
-      .attr("fill", d => "#333");
+      .attr("fill", d => "#333")
+      .transition()
+      .duration(500)
+      .attr("y", d => h - Math.abs(d.meanValue*h/300)-5);
 }
 
 function yearRange(minYear, maxYear, dataArray) {
@@ -128,8 +134,10 @@ function monthRange(year, dataArray) {
     var dataMonths = dataArray.filter(d => d.year == year);
     var minMonth = dataMonths[0]['month'];
     var maxMonth = dataMonths[dataMonths.length-1]['month'];
+    var i = 0;
 
     months = months.slice(minMonth-1, maxMonth);
+    console.log(minMonth, maxMonth, months);
     
     // clear month input list
     d3.select("#month")
@@ -137,7 +145,8 @@ function monthRange(year, dataArray) {
       .remove()
 
     // update the month input list
-    for(i = minMonth-1; i < maxMonth; i++) {
-        d3.select("#month").append("option").attr("value", i+1).text(months[i]);
+    for(i = 0; i < maxMonth-minMonth+1; i++) {
+        console.log(i, months[i])
+        d3.select("#month").append("option").attr("value", i+minMonth).text(months[i]);
     }
 }
