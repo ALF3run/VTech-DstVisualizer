@@ -76,7 +76,6 @@ function histogram(year, month, dataArray) {
                              .filter(d => d.month == month);
     var w = document.getElementById("histogram-chart").width.baseVal.value;
     var h = document.getElementById("histogram-chart").height.baseVal.value;
-    console.log(monthData);
 
     // clear histogram
     d3.select("#histogram-chart")
