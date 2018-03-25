@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Space Weather Tools</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- frameworks -->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!-- fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Cantarell:700i" rel="stylesheet" />
+
+    <!-- my scripts and stylesheets -->
+    <link rel="stylesheet" type="text/css" media="screen" href="css/style.css" />
+</head>
+<body>
+    <div id="top-bar">
+        <header>
+            <h1>Space Weather Tools</h1>
+        </header>
+    </div>
+    
+    <main class="flex-container">
+        <div class="card">
+            <h3>Welcome</h3>
+            <hr />
+            <div class="content">
+                <p>To start using the visualization software you need to upload a file with the data. This must follow the <a href="http://wdc.kugi.kyoto-u.ac.jp/dstae/format/dstformat.html" target="_blank">format</a> of the WDC for Geomagnetism of Kyoto.</p>
+                <p>You can generate a ready to use data file from the WDC site: <a href="http://wdc.kugi.kyoto-u.ac.jp/dstae/" target="_blank">http://wdc.kugi.kyoto-u.ac.jp/dstae/</a>. Be sure both "Dst output" and "WDC-like format" are selected before proceeding with file generation. After the data are ready, in your favourite browser you can chose the option "Save page as" to download them in a file.</p>
+            </div>
+            <div>
+                <input type="file" id="user-file" />
+                <label id="upload-button" for="user-file">Select a file</label>
+                <p id="upload-alert"></p>
+            </div>
+        </div>
+    </main>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>
