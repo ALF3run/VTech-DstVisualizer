@@ -22,11 +22,11 @@
         </header>
     </div>
     
-    <main class="flex-container">
+    <main>
         <div class="card">
             <h3>Welcome</h3>
             <hr />
-            <div class="content">
+            <div class="info">
                 <p>To start using the visualization software you need to upload a file with the data. This must follow the <a href="http://wdc.kugi.kyoto-u.ac.jp/dstae/format/dstformat.html" target="_blank">format</a> of the WDC for Geomagnetism of Kyoto.</p>
                 <p>You can generate a ready to use data file from the WDC site: <a href="http://wdc.kugi.kyoto-u.ac.jp/dstae/" target="_blank">http://wdc.kugi.kyoto-u.ac.jp/dstae/</a>. Be sure both "Dst output" and "WDC-like format" are selected before proceeding with file generation. After the data are ready, in your favourite browser you can chose the option "Save page as" to download them in a file.</p>
             </div>
@@ -34,6 +34,29 @@
                 <input type="file" id="user-file" />
                 <label id="upload-button" for="user-file">Select a file</label>
                 <p id="upload-alert"></p>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Dst Visualizer</h3>
+            <div>
+                <select id="month"></select>
+                <select id="year"></select>
+            </div>
+            <hr />
+            <div class="flex-container">
+                <div class="svg-container">
+                    <svg id="histogram-chart" width="400px" height="300px"></svg>
+                </div>
+                <div class="svg-container">
+                    <svg id="earth-position" width="400px" height="300px"></svg>
+                </div>
+            </div>
+            <div class="info">
+                <p>The Dst (Distrubance storm time) index represetns the axially symmetric disturbance magnetic field at the dipole equator on the Earth's surface.</p>
+                <p>Dst variation will clearly indicate occurences of magnetic storms and their severity when they occur. <b>Thus, the Dst variation provide a quantitive measure of feomagnetic disturbance thath can be correlated with other solar and geophysical parameters.</b></p>
+                <p>Major disturbances in Dst are negative, while positive variations in Dst are mostly caused by the compression of magnetosphere from solar wind pressure increase. It is known that the disturbance field is generally not axially symmetric. In particular, in the development phase of a magnetic storm the asymmetric disturbance field can be even greater than the symmetric part.</p>
+                <p>Ionosphere seems to be a major source of the storm time ring current in the energy range below 17 Kev. While the ring current ions with energy greater than 600 Kev have a composition sggestive of solar wind origin.</p>
+                <p>For more information on Dst index and how to derive it, visit <a href="http://wdc.kugi.kyoto-u.ac.jp/dstdir/dst2/onDstindex.html">http://wdc.kugi.kyoto-u.ac.jp/dstdir/dst2/onDstindex.html</a></p>
             </div>
         </div>
     </main>
