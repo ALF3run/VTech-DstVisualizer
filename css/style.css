@@ -43,6 +43,15 @@
     display: none;
 }
 
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #333;
+    shape-rendering: crispEdges;
+}
+.axis text {
+    font-size: 0.8em;
+}
 .card {
     background-color: #eee;
     border-left: solid 5px #8b1f41;
