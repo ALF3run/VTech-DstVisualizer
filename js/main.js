@@ -189,6 +189,21 @@ function histogram(data) {
       .attr("class", "axis")
       .attr("transform", "translate(" + 10 + ", 0)")
       .call(yAxis);
+
+    // make histogram axis labels
+    d3.select("#histogram-chart")
+      .append("text")
+      .attr("class", "axis-label")
+      .attr("x", w-10)
+      .attr("y", h)
+      .text("[Days]");
+      
+    d3.select("#histogram-chart")
+      .append("text")
+      .attr("class", "axis-label")
+      .attr("x", -10)
+      .attr("y", 30)
+      .text("[100 nT]");
 }
 
 function orbit(month) {

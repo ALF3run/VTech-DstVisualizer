@@ -52,6 +52,9 @@
 .axis text {
     font-size: 0.8em;
 }
+.axis-label {
+    font-size: 0.5em;
+}
 .card {
     background-color: #eee;
     border-left: solid 5px #8b1f41;
