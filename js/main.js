@@ -1,3 +1,5 @@
+window.onload = ajaxCall("../data/Dst_data-2000_to_2018.dat");
+
 document.getElementById("user-file").addEventListener("change", function() {
     var dataFile = this.files[0];
     var reader = new FileReader();
@@ -9,6 +11,26 @@ document.getElementById("user-file").addEventListener("change", function() {
     reader.onload = function(event) {onloadFile(event)}
     reader.readAsText(dataFile);
 });
+
+function ajaxCall(fname){
+    var xmlhttp;
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function(){
+        if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+            var dataFile = xmlhttp.responseText;
+            console.log(dataFile);
+            var reader = new FileReader();
+
+            document.getElementById("upload-alert").innerText = "";
+            // reader.onload is used to execute operations on the file after it is 
+            // loaded and passed to one of the "readAs..." functions. Reference:
+            // https://developer.mozilla.org/en-US/docs/Web/API/FileReader/onload
+            reader.onload = function(event) {onloadFile(event)}
+            reader.readAsText(dataFile);
+    }
+    xmlhttp.open("GET",fname,true);
+    xmlhttp.send();
+}
 
 function onloadFile(event) {
     var data = event.target.result;
