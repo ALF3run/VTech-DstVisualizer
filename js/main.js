@@ -36,7 +36,7 @@ document.getElementById("user-file").addEventListener("change", function() {
         var monthInput = document.getElementById("month");
 
         // initialize charts
-        histogram(getInputData(dataArray, "day"));
+        histogram(getInputData(dataArray, "month"));
         orbit(monthInput.value);
 
         // add input listeners and update charts
@@ -136,7 +136,7 @@ function histogram(data) {
       .append("rect")
       .attr("x", (d, i) => xScale(i))
       .attr("y", h)
-      .attr("width", Math.round(w/data.length) - 2)
+      .attr("width", Math.floor(w/data.length) - 3)
       .attr("height", d => h - yScale(d))
       .attr("fill", d => "hsl(" +  cScale(d) + ", 100%, 50%)")
       .transition()
@@ -163,7 +163,7 @@ function histogram(data) {
     d3.select("#histogram-chart")
       .append("g")
       .attr("class", "axis")
-      .attr("transform", "translate("+ (-((w/data.length) - 2)/2) +", " + h + ")")
+      .attr("transform", "translate("+ (-((w/data.length) + 3)/2) +", " + h + ")")
       .call(xAxis);
 
     d3.select("#histogram-chart")
