@@ -1,4 +1,6 @@
-document.getElementById("user-file").addEventListener("change", function() {
+document.getElementById("user-file").addEventListener("change", core);
+
+function core() {
     var dataFile = this.files[0];
     var reader = new FileReader();
 
@@ -51,7 +53,7 @@ document.getElementById("user-file").addEventListener("change", function() {
         }, {passive: true});
     }
     reader.readAsText(dataFile);
-});
+}
 
 function dstParser(dataRow) {
     var i = 0;
