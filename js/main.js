@@ -1,3 +1,5 @@
+window.onload = ajaxCall("https://raw.githubusercontent.com/ALF3run/VTech-DstVisualizer/beta/data/Dst_data-2000_to_2018.dat");
+
 document.getElementById("user-file").addEventListener("change", function() {
     var dataFile = this.files[0];
     var reader = new FileReader();
@@ -8,50 +10,66 @@ document.getElementById("user-file").addEventListener("change", function() {
     // https://developer.mozilla.org/en-US/docs/Web/API/FileReader/onload
     reader.onload = function(event) {
         var data = event.target.result;
-        var dataArray = [];
-        var i = 0;
-        var rowLen = 121;
 
-        // check for file format
-        if("DST" != data.slice(0, 3) && "\n" != data.slice(rowLen)) {
-            document.getElementById("upload-alert").innerText = "WARNING: wrong file format.";
-            return false;
-        }
-        
-        // extract data
-        for(i = 0; i < data.length/rowLen; i++) {
-            dataArray.push(dstParser(data.slice(i*rowLen, (i+1)*rowLen)));
-        }
-        var maxYear = dataArray.reduce(function(prev, curr) {
-            return curr.year > prev.year ? curr : prev;
-        });
-        var minYear = dataArray.reduce(function(prev, curr) {
-            return curr.year < prev.year ? curr : prev;
-        });
-
-        // initialize month and year inputs
-        yearRange(minYear.year, maxYear.year, dataArray);
-        monthRange(minYear.year, dataArray);
-        var yearInput = document.getElementById("year");
-        var monthInput = document.getElementById("month");
-
-        // initialize charts
-        histogram(yearInput.value, monthInput.value, dataArray);
-        orbit(monthInput.value);
-
-        // add input listeners and update charts
-        yearInput.addEventListener("change", function() {
-            monthRange(this.value, dataArray);
-            histogram(this.value, monthInput.value, dataArray);
-            moveEarth(monthInput.value);
-        }, {passive: true});
-        monthInput.addEventListener("change", function() {
-            histogram(yearInput.value, this.value, dataArray);
-            moveEarth(this.value);
-        }, {passive: true});
+        onloadFile(data);
     }
     reader.readAsText(dataFile);
 });
+
+function ajaxCall(fname){
+    var xmlhttp;
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function(){
+        if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+            onloadFile(xmlhttp.responseText);
+    }
+    xmlhttp.open("GET",fname,true);
+    xmlhttp.send();
+}
+
+function onloadFile(data) {
+    var dataArray = [];
+    var i = 0;
+    var rowLen = 121;
+
+    // check for file format
+    if("DST" != data.slice(0, 3) && "\n" != data.slice(rowLen)) {
+        document.getElementById("upload-alert").innerText = "WARNING: wrong file format.";
+        return false;
+    }
+    
+    // extract data
+    for(i = 0; i < data.length/rowLen; i++) {
+        dataArray.push(dstParser(data.slice(i*rowLen, (i+1)*rowLen)));
+    }
+    var maxYear = dataArray.reduce(function(prev, curr) {
+        return curr.year > prev.year ? curr : prev;
+    });
+    var minYear = dataArray.reduce(function(prev, curr) {
+        return curr.year < prev.year ? curr : prev;
+    });
+
+    // initialize month and year inputs
+    yearRange(minYear.year, maxYear.year, dataArray);
+    monthRange(minYear.year, dataArray);
+    var yearInput = document.getElementById("year");
+    var monthInput = document.getElementById("month");
+
+    // initialize charts
+    histogram(getInputData(dataArray, "month"));
+    orbit(monthInput.value);
+
+    // add input listeners and update charts
+    yearInput.addEventListener("change", function() {
+        monthRange(this.value, dataArray);
+        histogram(getInputData(dataArray, "month"));
+        moveEarth(monthInput.value);
+    }, {passive: true});
+    monthInput.addEventListener("change", function() {
+        histogram(getInputData(dataArray, "month"));
+        moveEarth(this.value);
+    }, {passive: true});
+}
 
 function dstParser(dataRow) {
     var i = 0;
@@ -74,18 +92,37 @@ function dstParser(dataRow) {
     return dstDay;
 }
 
-function histogram(year, month, dataArray) {
-    var monthData = dataArray.filter(d => d.year == year)
-                             .filter(d => d.month == month);
+function getInputData(dataArray, timeRange, day = 0) {
+    var yearInput = document.getElementById("year").value;
+    var monthInput = document.getElementById("month").value;
+    var yearData   = dataArray.filter(d => d.year == yearInput);
+    var monthData  = yearData.filter(d => d.month == monthInput);
+    var dayData    = monthData.filter(d => d.day == day);
+
+    switch(timeRange) {
+                             // Array of objects
+        case "year" : return yearData;
+        case "month": {
+            // Array of dst mean value for the months
+            monthData = monthData.map(d => d.meanValue)
+            return monthData
+        }
+                             // Array of dst hourly value for the selected day
+        case "day"  : return dayData[0].hourlyValue;
+        default     : console.warn("Unrecognized argument timeRange in function getInput(). timeRange accepted value are 'year', 'month' and 'day'");
+    }
+}
+
+function histogram(data) {
     var w = document.getElementById("histogram-chart").width.baseVal.value;
     var h = document.getElementById("histogram-chart").height.baseVal.value;
 
     // setup the scales
     var xScale = d3.scaleLinear()
-                   .domain([0, 31])
-                   .rangeRound([10, w-10]);
+                   .domain([1, data.length])
+                   .rangeRound([30, w-10]);
     var yScale = d3.scaleLinear()
-                   .domain(d3.extent(monthData, d => d.meanValue))
+                   .domain(d3.extent(data, d => d))
                    .rangeRound([40, h-20]);
     var cScale = d3.scaleLinear()
                    .domain([-300, 100])
@@ -94,7 +131,7 @@ function histogram(year, month, dataArray) {
     // setup histogram axis
     var xAxis = d3.axisBottom()
                   .scale(xScale)
-                  .ticks(32);
+                  .ticks(31);
     var yAxis = d3.axisLeft()
                   .scale(yScale);
 
@@ -112,45 +149,45 @@ function histogram(year, month, dataArray) {
     // make histogram bars
     d3.select("#histogram-chart")
       .selectAll("rect")
-      .data(monthData)
+      .data(data)
       .enter()
       .append("rect")
-      .attr("x", (d, i) => xScale(i+1))
+      .attr("x", (d, i) => xScale(i))
       .attr("y", h)
-      .attr("width", Math.floor(w/32) - 1)
-      .attr("height", d => h - yScale(d.meanValue))
-      .attr("fill", d => "hsl(" +  cScale(d.meanValue) + ", 100%, 50%)")
+      .attr("width", Math.floor(w/data.length) - 3)
+      .attr("height", d => h - yScale(d))
+      .attr("fill", d => "hsl(" +  cScale(d) + ", 100%, 50%)")
       .transition()
       .duration(500)
-      .attr("y", d => yScale(d.meanValue));
+      .attr("y", d => yScale(d));
 
     // make histogram labels
     d3.select("#histogram-chart")
       .selectAll("text")
-      .data(monthData)
+      .data(data)
       .enter()
       .append("text")
-      .text(d => d.meanValue)
-      .attr("x", (d, i) => xScale(i+1))
+      .text(d => d)
+      .attr("x", (d, i) => xScale(i))
       .attr("y", h-5)
       .attr("font-family", "sans-serif")
       .attr("font-size", "0.5em")
       .attr("fill", d => "#333")
       .transition()
       .duration(500)
-      .attr("y", d => yScale(d.meanValue) - 5);
+      .attr("y", d => yScale(d) - 5);
 
     // make histogram axis
     d3.select("#histogram-chart")
       .append("g")
       .attr("class", "axis")
-      .attr("transform", "translate(" + (((w/32) - 1)/2)  +", " + h + ")")
+      .attr("transform", "translate("+ (-((w/data.length) + 3)/2) +", " + h + ")")
       .call(xAxis);
 
     d3.select("#histogram-chart")
       .append("g")
       .attr("class", "axis")
-      .attr("transform", "translate(" + ((w/32) - 1) + ", 0)")
+      .attr("transform", "translate(" + 10 + ", 0)")
       .call(yAxis);
 }
 
