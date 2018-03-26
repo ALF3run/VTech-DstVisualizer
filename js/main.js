@@ -1,6 +1,4 @@
-document.getElementById("user-file").addEventListener("change", core);
-
-function core() {
+document.getElementById("user-file").addEventListener("change", function() {
     var dataFile = this.files[0];
     var reader = new FileReader();
 
@@ -8,51 +6,53 @@ function core() {
     // reader.onload is used to execute operations on the file after it is 
     // loaded and passed to one of the "readAs..." functions. Reference:
     // https://developer.mozilla.org/en-US/docs/Web/API/FileReader/onload
-    reader.onload = function(event) {
-        var data = event.target.result;
-        var dataArray = [];
-        var i = 0;
-        var rowLen = 121;
-
-        // check for file format
-        if("DST" != data.slice(0, 3) && "\n" != data.slice(rowLen)) {
-            document.getElementById("upload-alert").innerText = "WARNING: wrong file format.";
-            return false;
-        }
-        
-        // extract data
-        for(i = 0; i < data.length/rowLen; i++) {
-            dataArray.push(dstParser(data.slice(i*rowLen, (i+1)*rowLen)));
-        }
-        var maxYear = dataArray.reduce(function(prev, curr) {
-            return curr.year > prev.year ? curr : prev;
-        });
-        var minYear = dataArray.reduce(function(prev, curr) {
-            return curr.year < prev.year ? curr : prev;
-        });
-
-        // initialize month and year inputs
-        yearRange(minYear.year, maxYear.year, dataArray);
-        monthRange(minYear.year, dataArray);
-        var yearInput = document.getElementById("year");
-        var monthInput = document.getElementById("month");
-
-        // initialize charts
-        histogram(getInputData(dataArray, "month"));
-        orbit(monthInput.value);
-
-        // add input listeners and update charts
-        yearInput.addEventListener("change", function() {
-            monthRange(this.value, dataArray);
-            histogram(getInputData(dataArray, "month"));
-            moveEarth(monthInput.value);
-        }, {passive: true});
-        monthInput.addEventListener("change", function() {
-            histogram(getInputData(dataArray, "month"));
-            moveEarth(this.value);
-        }, {passive: true});
-    }
+    reader.onload = function(event) {onloadFile(event)}
     reader.readAsText(dataFile);
+});
+
+function onloadFile(event) {
+    var data = event.target.result;
+    var dataArray = [];
+    var i = 0;
+    var rowLen = 121;
+
+    // check for file format
+    if("DST" != data.slice(0, 3) && "\n" != data.slice(rowLen)) {
+        document.getElementById("upload-alert").innerText = "WARNING: wrong file format.";
+        return false;
+    }
+    
+    // extract data
+    for(i = 0; i < data.length/rowLen; i++) {
+        dataArray.push(dstParser(data.slice(i*rowLen, (i+1)*rowLen)));
+    }
+    var maxYear = dataArray.reduce(function(prev, curr) {
+        return curr.year > prev.year ? curr : prev;
+    });
+    var minYear = dataArray.reduce(function(prev, curr) {
+        return curr.year < prev.year ? curr : prev;
+    });
+
+    // initialize month and year inputs
+    yearRange(minYear.year, maxYear.year, dataArray);
+    monthRange(minYear.year, dataArray);
+    var yearInput = document.getElementById("year");
+    var monthInput = document.getElementById("month");
+
+    // initialize charts
+    histogram(getInputData(dataArray, "month"));
+    orbit(monthInput.value);
+
+    // add input listeners and update charts
+    yearInput.addEventListener("change", function() {
+        monthRange(this.value, dataArray);
+        histogram(getInputData(dataArray, "month"));
+        moveEarth(monthInput.value);
+    }, {passive: true});
+    monthInput.addEventListener("change", function() {
+        histogram(getInputData(dataArray, "month"));
+        moveEarth(this.value);
+    }, {passive: true});
 }
 
 function dstParser(dataRow) {
