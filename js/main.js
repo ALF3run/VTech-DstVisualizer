@@ -197,13 +197,13 @@ function histogram(data) {
       .attr("x", w-10)
       .attr("y", h)
       .text("[Days]");
-      
+
     d3.select("#histogram-chart")
       .append("text")
       .attr("class", "axis-label")
       .attr("x", -10)
       .attr("y", 30)
-      .text("[100 nT]");
+      .text("[1 nT]");
 }
 
 function orbit(month) {
