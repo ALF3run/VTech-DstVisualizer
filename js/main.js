@@ -29,7 +29,7 @@ document.getElementById("user-file").addEventListener("change", function() {
             return curr.year < prev.year ? curr : prev;
         });
 
-        // initialize month and year inputs and histogram
+        // initialize month and year inputs
         yearRange(minYear.year, maxYear.year, dataArray);
         monthRange(minYear.year, dataArray);
         var yearInput = document.getElementById("year");
@@ -80,12 +80,33 @@ function histogram(year, month, dataArray) {
     var w = document.getElementById("histogram-chart").width.baseVal.value;
     var h = document.getElementById("histogram-chart").height.baseVal.value;
 
+    // setup the scales
+    var xScale = d3.scaleLinear()
+                   .domain([0, 31])
+                   .rangeRound([10, w-10]);
+    var yScale = d3.scaleLinear()
+                   .domain(d3.extent(monthData, d => d.meanValue))
+                   .rangeRound([40, h-20]);
+    var cScale = d3.scaleLinear()
+                   .domain([-300, 100])
+                   .rangeRound([0, 240]);
+
+    // setup histogram axis
+    var xAxis = d3.axisBottom()
+                  .scale(xScale)
+                  .ticks(32);
+    var yAxis = d3.axisLeft()
+                  .scale(yScale);
+
     // clear histogram
     d3.select("#histogram-chart")
       .selectAll("rect")
       .remove();
     d3.select("#histogram-chart")
       .selectAll("text")
+      .remove();
+    d3.select("#histogram-chart")
+      .selectAll("g")
       .remove();
     
     // make histogram bars
@@ -94,14 +115,14 @@ function histogram(year, month, dataArray) {
       .data(monthData)
       .enter()
       .append("rect")
-      .attr("x", (d, i) => i*w/monthData.length)
-      .attr("y", d => h)
-      .attr("width", w/monthData.length - 1)
-      .attr("height", d => Math.abs(d.meanValue*h/300))
-      .attr("fill", d => "hsl(" +  Math.abs(d.meanValue*360/300) + ", 100%, 50%)")
+      .attr("x", (d, i) => xScale(i+1))
+      .attr("y", h)
+      .attr("width", Math.floor(w/32) - 1)
+      .attr("height", d => h - yScale(d.meanValue))
+      .attr("fill", d => "hsl(" +  cScale(d.meanValue) + ", 100%, 50%)")
       .transition()
       .duration(500)
-      .attr("y", d => h - Math.abs(d.meanValue*h/300));
+      .attr("y", d => yScale(d.meanValue));
 
     // make histogram labels
     d3.select("#histogram-chart")
@@ -109,15 +130,28 @@ function histogram(year, month, dataArray) {
       .data(monthData)
       .enter()
       .append("text")
-      .text(d => Math.abs(d.meanValue))
-      .attr("x", (d, i) => i*w/monthData.length+2)
-      .attr("y", d => h-5)
+      .text(d => d.meanValue)
+      .attr("x", (d, i) => xScale(i+1))
+      .attr("y", h-5)
       .attr("font-family", "sans-serif")
       .attr("font-size", "0.5em")
       .attr("fill", d => "#333")
       .transition()
       .duration(500)
-      .attr("y", d => h - Math.abs(d.meanValue*h/300)-5);
+      .attr("y", d => yScale(d.meanValue) - 5);
+
+    // make histogram axis
+    d3.select("#histogram-chart")
+      .append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(" + (((w/32) - 1)/2)  +", " + h + ")")
+      .call(xAxis);
+
+    d3.select("#histogram-chart")
+      .append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(" + ((w/32) - 1) + ", 0)")
+      .call(yAxis);
 }
 
 function orbit(month) {
