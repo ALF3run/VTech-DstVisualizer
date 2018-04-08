@@ -114,8 +114,8 @@ function getInputData(dataArray, timeRange, day = 0) {
 }
 
 function histogram(data) {
-    var w = document.getElementById("histogram-chart").width.baseVal.value;
-    var h = document.getElementById("histogram-chart").height.baseVal.value;
+    var w = document.getElementById("histogram-chart").width.baseVal.value - 22;
+    var h = document.getElementById("histogram-chart").height.baseVal.value - 22;
 
     // setup the scales
     var xScale = d3.scaleLinear()
@@ -152,7 +152,7 @@ function histogram(data) {
       .data(data)
       .enter()
       .append("rect")
-      .attr("x", (d, i) => xScale(i))
+      .attr("x", (d, i) => xScale(i) + 11)
       .attr("y", h)
       .attr("width", Math.floor(w/data.length) - 3)
       .attr("height", d => h - yScale(d))
@@ -168,7 +168,7 @@ function histogram(data) {
       .enter()
       .append("text")
       .text(d => d)
-      .attr("x", (d, i) => xScale(i))
+      .attr("x", (d, i) => xScale(i) + 11)
       .attr("y", h-5)
       .attr("font-family", "sans-serif")
       .attr("font-size", "0.5em")
@@ -181,27 +181,27 @@ function histogram(data) {
     d3.select("#histogram-chart")
       .append("g")
       .attr("class", "axis")
-      .attr("transform", "translate("+ (-((w/data.length) + 3)/2) +", " + h + ")")
+      .attr("transform", "translate("+ (11 + (-((w/data.length) + 3)/2)) +", " + h + ")")
       .call(xAxis);
 
     d3.select("#histogram-chart")
       .append("g")
       .attr("class", "axis")
-      .attr("transform", "translate(" + 10 + ", 0)")
+      .attr("transform", "translate(" + 22 + ", 0)")
       .call(yAxis);
 
     // make histogram axis labels
     d3.select("#histogram-chart")
       .append("text")
       .attr("class", "axis-label")
-      .attr("x", w-10)
+      .attr("x", w)
       .attr("y", h)
       .text("[Days]");
 
     d3.select("#histogram-chart")
       .append("text")
       .attr("class", "axis-label")
-      .attr("x", -10)
+      .attr("x", 0)
       .attr("y", 30)
       .text("[1 nT]");
 }

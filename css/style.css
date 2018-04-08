@@ -115,5 +115,7 @@ main {
 }
 svg {
     background: #fff;
-    padding: 1em;
+    height: 380px;
+    padding: 0.5em;
+    width: 440px;
 }
